@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
-# 這裡使用 leafmap.foliumap 是正確的，因為您需要 Folium 後端
+# 使用 leafmap.foliumap 讓 Streamlit 正確渲染
 import leafmap.foliumap as leafmap 
-import folium # 雖然不再直接使用 folium.GeoJsonPopup，但保留引入是好習慣
+# 雖然不再直接使用，但保留以利未來擴充
+import folium 
 
 st.set_page_config(layout="wide")
 st.title("Leafmap + GeoPandas (向量)")
@@ -13,26 +14,46 @@ st.title("Leafmap + GeoPandas (向量)")
 option = st.selectbox("請選擇底圖", ("OpenTopoMap", "Esri.WorldImagery", "CartoDB.DarkMatter"))
 
 # --- 1. 讀取 JSON 檔案（非 GeoJSON） ---
-# 假設 "路外停車資訊.json" 存在
 url = "路外停車資訊.json"
-df = pd.read_json(url)
+
+try:
+    df = pd.read_json(url)
+except Exception as e:
+    st.error(f"⚠️ 檔案讀取失敗，請確認 '{url}' 檔案是否存在於應用程式同目錄。錯誤訊息: {e}")
+    st.stop()
+
 
 # 檢查資料
+st.subheader("資料預覽 (表格)")
 st.dataframe(df.head())
 
 # --- 2. 將經緯度轉成 geometry ---
-df["wgsX"] = df["wgsX"].astype(float)
-df["wgsY"] = df["wgsY"].astype(float)
-geometry = [Point(xy) for xy in zip(df["wgsX"], df["wgsY"])]
-gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
+try:
+    df["wgsX"] = df["wgsX"].astype(float)
+    df["wgsY"] = df["wgsY"].astype(float)
+    geometry = [Point(xy) for xy in zip(df["wgsX"], df["wgsY"])]
+    gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
+    
+    # ⭐ 偵錯點 1：檢查 GeoDataFrame 是否有資料
+    if gdf.empty:
+        st.warning("⚠️ GeoDataFrame (gdf) 為空！請檢查原始 JSON 檔案中是否有 'wgsX' 和 'wgsY' 欄位。")
+        st.stop()
+        
+    st.info(f"✅ GeoDataFrame 成功建立，包含 {len(gdf)} 個點位。")
+
+except Exception as e:
+    st.error(f"⚠️ 經緯度轉換失敗，請檢查 'wgsX' 和 'wgsY' 欄位的資料格式。錯誤訊息: {e}")
+    st.stop()
+
 
 # --- 3. 建立地圖 ---
-m = leafmap.Map(center=[23.5, 121], zoom=8, basemap=option)
+# 將中心點設為所有點的平均值，讓地圖可以自動縮放到點位
+center_lat = gdf["wgsY"].mean() if not gdf.empty else 23.5
+center_lon = gdf["wgsX"].mean() if not gdf.empty else 121
 
-# --- 4. 建立 folium popup ---
-# 這裡不再需要這個 Folium 物件
+m = leafmap.Map(center=[center_lat, center_lon], zoom=10, basemap=option)
 
-# --- 5. 將 GeoDataFrame 加到地圖 (使用 m.add_gdf) ---
+# --- 4. 將 GeoDataFrame 加到地圖 (使用 m.add_gdf 確保穩定性) ---
 m.add_gdf(
     gdf,
     layer_name="路外停車資訊",
@@ -52,5 +73,6 @@ m.add_gdf(
 
 m.add_layer_control()
 
-# --- 6. 顯示地圖 ---
+# --- 5. 顯示地圖 ---
+st.subheader("Leafmap 地圖顯示")
 m.to_streamlit(height=700)
