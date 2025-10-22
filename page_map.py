@@ -11,7 +11,7 @@ st.title("Leafmap + GeoPandas (向量)")
 # --- 選擇底圖 ---
 with st.sidebar:
     st.header("地圖設定")
-    option = st.selectbox("請選擇底圖", ("OpenTopoMap", "Esri.WorldImagery", "CartoDB.DarkMatter"))er"))
+    option = st.selectbox("請選擇底圖", ("OpenTopoMap", "Esri.WorldImagery", "CartoDB.DarkMatter"))
 
 # --- 1. 讀取 JSON 檔案 ---
 url = "路外停車資訊.json"
