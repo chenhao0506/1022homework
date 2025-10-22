@@ -70,6 +70,15 @@ m.add_gdf(
         "fillColor": "#007BFF", 
         "fillOpacity": 0.8
     },
-)
     
     # 關鍵修正：移除 'popup' 參數，改用 'tooltip' 避開 Folium 內部衝突
+    # tooltip 參數用於滑鼠懸停時顯示資訊
+    tooltip=["parkName", "address", "totalSpace", "payGuide"], 
+    aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："]
+)
+
+m.add_layer_control()
+
+# --- 5. 顯示地圖 ---
+st.subheader("Leafmap 地圖顯示")
+m.to_streamlit(height=700)
