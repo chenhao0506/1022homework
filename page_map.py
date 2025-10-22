@@ -14,7 +14,7 @@ url = "路外停車資訊.json"
 gdf = gpd.read_file(url)
 
 # (選用) 驗證是否成功
-st.dataframe(gdf.())
+st.dataframe(gdf())
 
 # --- 2. 建立地圖 ---
 m = leafmap.Map(center=[0, 0])
