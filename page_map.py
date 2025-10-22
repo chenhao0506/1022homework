@@ -9,9 +9,11 @@ st.set_page_config(layout="wide")
 st.title("Leafmap + GeoPandas (向量)")
 
 # --- 選擇底圖 ---
-option = st.selectbox("請選擇底圖", ("OpenTopoMap", "Esri.WorldImagery", "CartoDB.DarkMatter"))
+with st.sidebar:
+    st.header("地圖設定")
+    option = st.selectbox("請選擇底圖", ("OpenTopoMap", "Esri.WorldImagery", "CartoDB.DarkMatter"))er"))
 
-# --- 1. 讀取 JSON 檔案（非 GeoJSON） ---
+# --- 1. 讀取 JSON 檔案 ---
 url = "路外停車資訊.json"
 
 try:
@@ -27,14 +29,11 @@ except Exception as e:
 
 # --- 2. 將經緯度轉成 geometry ---
 try:
-    # 確保經緯度欄位是浮點數，並處理可能的非數字值
     df["wgsX"] = pd.to_numeric(df["wgsX"], errors='coerce') 
     df["wgsY"] = pd.to_numeric(df["wgsY"], errors='coerce') 
     
-    # 移除任何經緯度為 NaN 的列
     df.dropna(subset=['wgsX', 'wgsY'], inplace=True)
 
-    # ❗ 關鍵修正：JSON中 wgsY 是經度(x)，wgsX 是緯度(y)。
     geometry = [Point(xy) for xy in zip(df["wgsY"], df["wgsX"])] 
     gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
     
@@ -58,7 +57,6 @@ m = leafmap.Map(center=[center_lat, center_lon], zoom=12, basemap=option)
 
 
 # --- 4. 將 GeoDataFrame 加到地圖 (使用 m.add_gdf) ---
-# ❗ 移除所有可能導致衝突的 popup/tooltip/aliases 參數
 m.add_gdf(
     gdf,
     layer_name="路外停車資訊",
@@ -77,4 +75,4 @@ m.add_layer_control()
 
 # --- 5. 顯示地圖 ---
 st.subheader("Leafmap 地圖顯示")
-m.to_streamlit(height=700) # 顯示地圖的關鍵步驟
+m.to_streamlit(height=700) 
