@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
-import leafmap.foliumap as leafmap
-import folium  # ✅ 要用 folium 來建立 popup
+# 這裡使用 leafmap.foliumap 是正確的，因為您需要 Folium 後端
+import leafmap.foliumap as leafmap 
+import folium # 雖然不再直接使用 folium.GeoJsonPopup，但保留引入是好習慣
 
 st.set_page_config(layout="wide")
 st.title("Leafmap + GeoPandas (向量)")
@@ -12,7 +13,7 @@ st.title("Leafmap + GeoPandas (向量)")
 option = st.selectbox("請選擇底圖", ("OpenTopoMap", "Esri.WorldImagery", "CartoDB.DarkMatter"))
 
 # --- 1. 讀取 JSON 檔案（非 GeoJSON） ---
-# 假設 "路外停車資訊.json" 存在於您的環境中
+# 假設 "路外停車資訊.json" 存在
 url = "路外停車資訊.json"
 df = pd.read_json(url)
 
@@ -29,22 +30,23 @@ gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
 m = leafmap.Map(center=[23.5, 121], zoom=8, basemap=option)
 
 # --- 4. 建立 folium popup ---
-# ❌ 移除 GeoJsonPopup 物件的建立，改為直接在 add_geojson 中使用欄位名稱和別名
-# popup = folium.GeoJsonPopup(
-#     fields=["parkName", "address", "totalSpace", "payGuide"],
-#     aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："],
-#     labels=True,
-#     localize=True
-# )
+# 這裡不再需要這個 Folium 物件
 
-# --- 5. 將 GeoDataFrame 轉成 GeoJSON 並加到地圖 ---
-geojson_data = gdf.to_json()
-m.add_geojson(
-    geojson_data,
+# --- 5. 將 GeoDataFrame 加到地圖 (使用 m.add_gdf) ---
+m.add_gdf(
+    gdf,
     layer_name="路外停車資訊",
-    style={"fillOpacity": 0.8, "color": "blue", "weight": 1},
-    # ✅ 直接傳遞欄位名稱列表給 popup，並使用 aliases 設定別名
-    popup=["parkName", "address", "totalSpace", "payGuide"], 
+    # 設置標記的樣式 (例如：圓形標記)
+    marker_kwds={
+        "radius": 5, 
+        "color": "blue", 
+        "fill": True, 
+        "fillColor": "blue", 
+        "fillOpacity": 0.8
+    },
+    # 傳遞欄位名稱列表給 popup
+    popup=["parkName", "address", "totalSpace", "payGuide"],
+    # 傳遞別名列表給 aliases
     aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："]
 )
 
