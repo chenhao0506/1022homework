@@ -4,7 +4,7 @@ st.header("范宸晧的GIS專題 in 1022")
 st.write("我是地理三的范宸晧，這個APP是用來...")
 
 pages = [
-    st.Page('page_map_viewer.py', title = '互動地圖瀏覽')
+    st.Page('page_map.py', title = '互動地圖瀏覽')
     ]
 
 with st.sidebar:
