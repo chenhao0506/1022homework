@@ -49,12 +49,8 @@ except Exception as e:
 
 
 # --- 3. 建立地圖 ---
-# 自動計算中心點和縮放級別
-center_lat = gdf.geometry.y.mean()
-center_lon = gdf.geometry.x.mean()
-
-m = leafmap.Map(center=[center_lat, center_lon], zoom=12, basemap=option)
-
+m = leafmap.Map(center=[0, 0])
+m.add_basemap(option)
 
 # --- 4. 將 GeoDataFrame 加到地圖 (使用 m.add_gdf) ---
 m.add_gdf(
@@ -74,5 +70,4 @@ m.add_gdf(
 m.add_layer_control()
 
 # --- 5. 顯示地圖 ---
-st.subheader("Leafmap 地圖顯示")
 m.to_streamlit(height=700) 
