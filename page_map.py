@@ -3,7 +3,7 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 import leafmap.foliumap as leafmap
-import folium  # 🔸 加入這個
+import folium  # ✅ 要用 folium 來建立 popup
 
 st.set_page_config(layout="wide")
 st.title("Leafmap + GeoPandas (向量)")
@@ -27,19 +27,21 @@ gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
 # --- 3. 建立地圖 ---
 m = leafmap.Map(center=[23.5, 121], zoom=8, basemap=option)
 
-# --- 4. 建立 Popup 設定 ---
+# --- 4. 建立 folium popup ---
 popup = folium.GeoJsonPopup(
     fields=["parkName", "address", "totalSpace", "payGuide"],
     aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："],
-    labels=True
+    labels=True,
+    localize=True
 )
 
-# --- 5. 加入 GeoDataFrame ---
-m.add_gdf(
-    gdf,
+# --- 5. 將 GeoDataFrame 轉成 GeoJSON 並加到地圖 ---
+geojson_data = gdf.to_json()
+m.add_geojson(
+    geojson_data,
     layer_name="路外停車資訊",
     style={"fillOpacity": 0.8, "color": "blue", "weight": 1},
-    popup=popup  # ✅ 這裡用 GeoJsonPopup 物件，而不是 list
+    popup=popup
 )
 
 m.add_layer_control()
