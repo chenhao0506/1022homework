@@ -1,8 +1,8 @@
 import streamlit as st
 
 pages = [
-    st.Page('page_map.py', title = '互動地圖瀏覽'),
-    st.Page('home.py', title = '關於我們')
+    st.Page('home.py', title = '關於我們'),
+    st.Page('page_map.py', title = '互動地圖瀏覽')
     ]
 
 with st.sidebar:
