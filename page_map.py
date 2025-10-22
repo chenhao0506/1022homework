@@ -31,11 +31,10 @@ try:
     df["wgsX"] = pd.to_numeric(df["wgsX"], errors='coerce') 
     df["wgsY"] = pd.to_numeric(df["wgsY"], errors='coerce') 
     
-    # 移除任何經緯度為 NaN 的列 (確保 Point 函式不會收到 None)
+    # 移除任何經緯度為 NaN 的列
     df.dropna(subset=['wgsX', 'wgsY'], inplace=True)
 
     # ❗ 關鍵修正：JSON中 wgsY 是經度(x)，wgsX 是緯度(y)。
-    #    GeoPandas/Shapely 需要 Point(Longitude, Latitude)
     geometry = [Point(xy) for xy in zip(df["wgsY"], df["wgsX"])] 
     gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
     
@@ -59,6 +58,7 @@ m = leafmap.Map(center=[center_lat, center_lon], zoom=12, basemap=option)
 
 
 # --- 4. 將 GeoDataFrame 加到地圖 (使用 m.add_gdf) ---
+# ❗ 移除所有可能導致衝突的 popup/tooltip/aliases 參數
 m.add_gdf(
     gdf,
     layer_name="路外停車資訊",
@@ -70,15 +70,11 @@ m.add_gdf(
         "fillColor": "#007BFF", 
         "fillOpacity": 0.8
     },
-    
-    # 關鍵修正：移除 'popup' 參數，改用 'tooltip' 避開 Folium 內部衝突
-    # tooltip 參數用於滑鼠懸停時顯示資訊
-#    tooltip=["parkName", "address", "totalSpace", "payGuide"], 
-#   aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："]
 )
 
-#m.add_layer_control()
+# 顯示圖層控制項
+m.add_layer_control()
 
 # --- 5. 顯示地圖 ---
-#st.subheader("Leafmap 地圖顯示")
-#m.to_streamlit(height=700)
+st.subheader("Leafmap 地圖顯示")
+m.to_streamlit(height=700) # 顯示地圖的關鍵步驟
