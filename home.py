@@ -8,8 +8,8 @@ pages = [
     ]
 
 with st.sidebar:
-st.title("App 導覽")
-# st.navigation() 會回傳被選擇的頁面
-selected_page = st.navigation(pages)
+    st.title("App 導覽")
+    # st.navigation() 會回傳被選擇的頁面
+    selected_page = st.navigation(pages)
 
 selected_page.run()
