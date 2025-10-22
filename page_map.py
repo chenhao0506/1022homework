@@ -70,5 +70,6 @@ m.add_gdf(
         "fillColor": "#007BFF", 
         "fillOpacity": 0.8
     },
+)
     
     # 關鍵修正：移除 'popup' 參數，改用 'tooltip' 避開 Folium 內部衝突
