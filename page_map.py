@@ -12,6 +12,7 @@ st.title("Leafmap + GeoPandas (向量)")
 option = st.selectbox("請選擇底圖", ("OpenTopoMap", "Esri.WorldImagery", "CartoDB.DarkMatter"))
 
 # --- 1. 讀取 JSON 檔案（非 GeoJSON） ---
+# 假設 "路外停車資訊.json" 存在於您的環境中
 url = "路外停車資訊.json"
 df = pd.read_json(url)
 
@@ -28,12 +29,13 @@ gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
 m = leafmap.Map(center=[23.5, 121], zoom=8, basemap=option)
 
 # --- 4. 建立 folium popup ---
-popup = folium.GeoJsonPopup(
-    fields=["parkName", "address", "totalSpace", "payGuide"],
-    aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："],
-    labels=True,
-    localize=True
-)
+# ❌ 移除 GeoJsonPopup 物件的建立，改為直接在 add_geojson 中使用欄位名稱和別名
+# popup = folium.GeoJsonPopup(
+#     fields=["parkName", "address", "totalSpace", "payGuide"],
+#     aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："],
+#     labels=True,
+#     localize=True
+# )
 
 # --- 5. 將 GeoDataFrame 轉成 GeoJSON 並加到地圖 ---
 geojson_data = gdf.to_json()
@@ -41,7 +43,9 @@ m.add_geojson(
     geojson_data,
     layer_name="路外停車資訊",
     style={"fillOpacity": 0.8, "color": "blue", "weight": 1},
-    popup=popup
+    # ✅ 直接傳遞欄位名稱列表給 popup，並使用 aliases 設定別名
+    popup=["parkName", "address", "totalSpace", "payGuide"], 
+    aliases=["停車場名稱：", "地址：", "總車位：", "收費方式："]
 )
 
 m.add_layer_control()
