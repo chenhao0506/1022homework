@@ -80,5 +80,5 @@ m.add_gdf(
 m.add_layer_control()
 
 # --- 5. 顯示地圖 ---
-st.subheader("Leafmap 地圖顯示")
-m.to_streamlit(height=700)
+#st.subheader("Leafmap 地圖顯示")
+#m.to_streamlit(height=700)
