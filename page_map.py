@@ -7,8 +7,7 @@ st.title("Leafmap + GeoPandas (向量)")
 
 # --- 1. 用 GeoPandas 讀取資料 ---
 # 這是 Natural Earth 110m cultural vectors 的官方託管 .zip 檔案連結
-url =
-"https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip"
+url = "https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_countries.zip"
 
 # GeoPandas 可以直接從 URL 讀取 .zip 檔
 gdf = gpd.read_file(url)
